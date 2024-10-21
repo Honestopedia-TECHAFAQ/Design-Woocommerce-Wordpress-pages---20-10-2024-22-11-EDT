@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accurate PMR - Responsive Product Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        nav ul li a:hover {
+            color: #ddd;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .product-card img {
+            width: 100%;
+            height: auto;
+        }
+        .product-card h2 {
+            margin: 15px 0;
+        }
+        .price {
+            font-size: 1.2em;
+            color: #333;
+            margin: 10px 0;
+        }
+        .add-to-cart {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            border-radius: 5px;
+        }
+        .add-to-cart:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .cart-summary {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+        }
+        .cart-summary h2 {
+            margin-bottom: 15px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .remove-item {
+            background: transparent;
+            border: none;
+            color: red;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .remove-item:hover {
+            color: darkred;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #333;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Accurate PMR</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Products</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="product-grid">
+            <div class="product-card" data-name="1oz Canadian Gold Maple Leaf" data-price="2000.00">
+                <img src="https://via.placeholder.com/250x250?text=Gold+Maple+Leaf" alt="1oz Canadian Gold Maple Leaf">
+                <h2>1oz Canadian Gold Maple Leaf</h2>
+                <p class="price">$2,000.00</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product-card" data-name="Silver American Eagle" data-price="30.00">
+                <img src="https://via.placeholder.com/250x250?text=Silver+American+Eagle" alt="Silver American Eagle">
+                <h2>Silver American Eagle</h2>
+                <p class="price">$30.00</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product-card" data-name="Gold Krugerrand" data-price="1900.00">
+                <img src="https://via.placeholder.com/250x250?text=Gold+Krugerrand" alt="Gold Krugerrand">
+                <h2>Gold Krugerrand</h2>
+                <p class="price">$1,900.00</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product-card" data-name="Platinum Bar" data-price="1000.00">
+                <img src="https://via.placeholder.com/250x250?text=Platinum+Bar" alt="Platinum Bar">
+                <h2>Platinum Bar</h2>
+                <p class="price">$1,000.00</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+        </section>
+        <section class="cart-summary" id="cart-summary">
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <p id="total-price">Total: $0.00</p>
+            <button id="checkout-button">Checkout</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Accurate PMR. All Rights Reserved.</p>
+    </footer>
+    <script>
+        const cartItems = [];
+        const totalPriceElement = document.getElementById('total-price');
+        const cartSummaryElement = document.getElementById('cart-items');
+
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                const productCard = button.parentElement;
+                const productName = productCard.getAttribute('data-name');
+                const productPrice = parseFloat(productCard.getAttribute('data-price'));
+                const existingItemIndex = cartItems.findIndex(item => item.name === productName);
+
+                if (existingItemIndex !== -1) {
+                    alert(`${productName} is already in your cart.`);
+                } else {
+                    cartItems.push({ name: productName, price: productPrice });
+                    updateCart();
+                    alert(`${productName} has been added to your cart!`);
+                }
+            });
+        });
+
+        function updateCart() {
+            cartSummaryElement.innerHTML = '';
+            let total = 0;
+
+            cartItems.forEach((item, index) => {
+                const cartItemElement = document.createElement('div');
+                cartItemElement.classList.add('cart-item');
+                cartItemElement.innerHTML = `${item.name} - $${item.price.toFixed(2)} <button class="remove-item" data-index="${index}">Remove</button>`;
+                cartSummaryElement.appendChild(cartItemElement);
+                total += item.price;
+            });
+
+            totalPriceElement.innerHTML = `Total: $${total.toFixed(2)}`;
+            attachRemoveItemListeners();
+        }
+
+        function attachRemoveItemListeners() {
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = button.getAttribute('data-index');
+                    cartItems.splice(index, 1);
+                    updateCart();
+                });
+            });
+        }
+
+        document.getElementById('checkout-button').addEventListener('click', () => {
+            if (cartItems.length > 0) {
+                alert('Proceeding to checkout...');
+            } else {
+                alert('Your cart is empty!');
+            }
+        });
+    </script>
+</body>
+</html>
